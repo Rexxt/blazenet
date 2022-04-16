@@ -1,13 +1,22 @@
 {
     "homepage": "https://start.duckduckgo.com",
     "extensions": {
-        "blacklist": []
+        "blacklist": [
+            "ExtStoreButton"
+        ]
     },
     "search_engine": "https://duckduckgo.com/?q={query}",
     "favourites": [
         {
+            "name": "Extension Store",
+            "url": "https://rexxt.github.io/blazenet/extensions"
+        },
+        {
             "name": "YouTube",
             "url": "http://youtube.com"
         }
-    ]
+    ],
+    "blaze_commands": {
+        "install-extension": true
+    }
 }
