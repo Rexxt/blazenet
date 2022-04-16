@@ -2,8 +2,7 @@
 
 BN_VERSION = "0.0.1"
 
-from curses.panel import new_panel
-import sys, os, json
+import sys, os, json, requests, zipfile, io
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtWebEngineWidgets import *
@@ -137,6 +136,27 @@ class MainWindow(QMainWindow):
 		self.showMaximized()
 	
 	def onPageChangedProcess(self):
+		# if the url is special (starting with "http://localhost/BLAZECMD/"), call the function associated with the url
+		if self.browser.url().toString().startswith("http://localhost/BLAZECMD/"):
+			print("Executing command: " + self.browser.url().toString().replace("http://localhost/BLAZECMD/", ""))
+			# get the function name
+			func_name = self.browser.url().toString().lstrip("http://localhost/BLAZECMD/").split("/")[0]
+			args = self.browser.url().toString().lstrip("http://localhost/BLAZECMD/").split("/")[1:]
+			# if name = "install-extension", install the extension
+			if func_name == "install-extension":
+				print("Installing extension: " + args[0])
+				# make url
+				url = f"https://github.com/Rexxt/blazenet/raw/gh-pages/ext/{args[0]}/package.zip"
+				# download the zip file
+				r = requests.get(url, stream = True)
+				# extract the zip file to ext/args[0]
+				with zipfile.ZipFile(io.BytesIO(r.content)) as zip_file:
+					zip_file.extractall(os.path.join(os.path.dirname(__file__), "ext", args[0]))
+				# load the single extension
+				self.extensions.append(__import__("ext." + args[0] + ".main", fromlist=["ext"]))
+				self.found_extensions.append(self.extensions[-1])
+			self.browser.back()
+
 		# for each extension, call blazeOnPageChanged(app, browser, url, page)
 		for ext in self.extensions:
 			# check if the extension has the function blazeOnPageChanged()
