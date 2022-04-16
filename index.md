@@ -1,37 +1,57 @@
-## Welcome to GitHub Pages
+# blazenet
+Light, reliable, extensible and free web browser.
 
-You can use the [editor on GitHub](https://github.com/Rexxt/blazenet/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+## Features
+### Implemented
+- Config file
+- Settings menu
+- Favourites
+- Extension system with 10 events as of version 0.0.1a-0
+- Navigation bar with controls including a home button redirecting to a user-set homepage, URL bar with automatic prefix addition (adds `http://` if prefix is left out) and search bar with customizable search engine
+### Previewed
+- Website Hold Rack to store links for later use in the current session
+- Preinstalled adblocking extension
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+## Extension framework
+### Getting started
+Writing an extension for blazenet is very easy.
 
-### Markdown
+First, in `ext/`, create a folder with the name of your choice. This will be the name of the extension. Your folder name may not contain spaces or slashes.
+Then, in that folder, create a `main.py` file. This is the core of the extension, that will be loaded by the browser when it starts.
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+You will be able to use numerous event handlers in your extension.
 
-```markdown
-Syntax highlighted code block
+### Events
+An event is a function starting with `blaze` that will be called when an event in the browser is triggered. Here are the available ones
+#### `blazeOnApplicationLoad(app: QMainWindow, browser: QWebEngineView, name: str)`
+Called when the application loads the extension. For clarification, `name` is the name of the extension.
 
-# Header 1
-## Header 2
-### Header 3
+#### `blazeOnPageChanged(app: QMainWindow, browser: QWebEngineView, url: str, page: QWebEnginePage)`
+Called when the browser switches to a different page.
 
-- Bulleted
-- List
+#### `blazeOnPageLoad(app: QMainWindow, browser: QWebEngineView, url: str, page: QWebEnginePage)`
+Called when a page loads.
 
-1. Numbered
-2. List
+#### `blazeOnBack(app: QMainWindow, browser: QWebEngineView, url: str, page: QWebEnginePage)`
+Called when the back button is pressed.
 
-**Bold** and _Italic_ and `Code` text
+#### `blazeOnForward(app: QMainWindow, browser: QWebEngineView, url: str, page: QWebEnginePage)`
+Called when the forward button is pressed.
 
-[Link](url) and ![Image](src)
-```
+#### `blazeOnReload(app: QMainWindow, browser: QWebEngineView, url: str, page: QWebEnginePage)`
+Called when the reload button is pressed.
 
-For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
+#### `blazeOnHome(app: QMainWindow, browser: QWebEngineView, url: str, page: QWebEnginePage)`
+Called when the home button is pressed.
 
-### Jekyll Themes
+#### `blazeOnQuit(app: QMainWindow, browser: QWebEngineView, url: str, page: QWebEnginePage)`
+Called when the browser is closed via the Blazenet menu.
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/Rexxt/blazenet/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+#### `blazeOnAddFavourite(app: QMainWindow, browser: QWebEngineView, url: str, name: str)`
+Called when a favourite is added.
 
-### Support or Contact
+#### `blazeOnRemoveFavourite(app: QMainWindow, browser: QWebEngineView, url: str, name: str)`
+Called when a favourite is removed.
 
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+#### `blazeOnSettingChanged(app: QMainWindow)`
+Called when the settings change.
