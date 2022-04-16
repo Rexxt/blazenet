@@ -145,6 +145,9 @@ class MainWindow(QMainWindow):
 			# if name = "install-extension", install the extension
 			if func_name == "install-extension":
 				print("Installing extension: " + args[0])
+				self.browser.load(QUrl("https://rexxt.github.io/blazenet/ext/installing"))
+				# edit window title
+				self.setWindowTitle("Blazenet • Installing extension " + args[0] + "...")
 				# make url
 				url = f"https://github.com/Rexxt/blazenet/raw/gh-pages/ext/{args[0]}/package.zip"
 				# download the zip file
@@ -160,6 +163,7 @@ class MainWindow(QMainWindow):
 					self.extensions[-1].blazeOnApplicationLoad(self, self.browser, args[0])
 				# show info dialog
 				QMessageBox.information(self, "Extension installed", f"Extension {args[0]} installed successfully.")
+				self.browser.back()
 			self.browser.back()
 
 		# for each extension, call blazeOnPageChanged(app, browser, url, page)
