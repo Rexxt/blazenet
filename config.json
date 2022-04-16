@@ -1,9 +1,7 @@
 {
     "homepage": "https://start.duckduckgo.com",
     "extensions": {
-        "blacklist": [
-            "ExtStoreButton"
-        ]
+        "blacklist": []
     },
     "search_engine": "https://duckduckgo.com/?q={query}",
     "favourites": [
@@ -17,6 +15,6 @@
         }
     ],
     "blaze_commands": {
-        "install-extension": true
+        "install-extension": false
     }
 }

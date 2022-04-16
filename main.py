@@ -144,27 +144,31 @@ class MainWindow(QMainWindow):
 			func_name = self.browser.url().toString().lstrip("http://localhost/BLAZECMD/").split("/")[0]
 			args = self.browser.url().toString().lstrip("http://localhost/BLAZECMD/").split("/")[1:]
 			# if name = "install-extension", install the extension
-			if func_name == "install-extension" and conf["blaze_commands"]["install-extension"]:
-				print("Installing extension: " + args[0])
-				self.browser.load(QUrl("https://rexxt.github.io/blazenet/ext/installing"))
-				# edit window title
-				self.setWindowTitle("Blazenet • Installing extension " + args[0] + "...")
-				# make url
-				url = f"https://github.com/Rexxt/blazenet/raw/gh-pages/ext/{args[0]}/package.zip"
-				# download the zip file
-				r = requests.get(url, stream = True)
-				# extract the zip file to ext/args[0]
-				with zipfile.ZipFile(io.BytesIO(r.content)) as zip_file:
-					zip_file.extractall(os.path.join(os.path.dirname(__file__), "ext", args[0]))
-				# load the single extension
-				self.extensions.append(__import__("ext." + args[0] + ".main", fromlist=["ext"]))
-				self.found_extensions.append(self.extensions[-1])
-				# call blazeOnApplicationLoad()
-				if hasattr(self.extensions[-1], "blazeOnApplicationLoad"):
-					self.extensions[-1].blazeOnApplicationLoad(self, self.browser, args[0])
-				# show info dialog
-				QMessageBox.information(self, "Extension installed", f"Extension {args[0]} installed successfully.")
-				self.browser.back()
+			if func_name == "install-extension":
+				if conf["blaze_commands"]["install-extension"]:
+					print("Installing extension: " + args[0])
+					self.browser.load(QUrl("https://rexxt.github.io/blazenet/ext/installing"))
+					# edit window title
+					self.setWindowTitle("Blazenet • Installing extension " + args[0] + "...")
+					# make url
+					url = f"https://github.com/Rexxt/blazenet/raw/gh-pages/ext/{args[0]}/package.zip"
+					# download the zip file
+					r = requests.get(url, stream = True)
+					# extract the zip file to ext/args[0]
+					with zipfile.ZipFile(io.BytesIO(r.content)) as zip_file:
+						zip_file.extractall(os.path.join(os.path.dirname(__file__), "ext", args[0]))
+					# load the single extension
+					self.extensions.append(__import__("ext." + args[0] + ".main", fromlist=["ext"]))
+					self.found_extensions.append(self.extensions[-1])
+					# call blazeOnApplicationLoad()
+					if hasattr(self.extensions[-1], "blazeOnApplicationLoad"):
+						self.extensions[-1].blazeOnApplicationLoad(self, self.browser, args[0])
+					# show info dialog
+					QMessageBox.information(self, "Extension installed", f"Extension {args[0]} installed successfully.")
+					self.browser.back()
+				else:
+					self.browser.back()
+					QMessageBox.warning(self, "Extension not installed", "Live extension installation is disabled in the settings.")
 			self.browser.back()
 
 		# for each extension, call blazeOnPageChanged(app, browser, url, page)
