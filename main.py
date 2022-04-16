@@ -10,6 +10,7 @@ from settings import SettingsWindow
 
 conf_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "config.json")
 conf = json.load(open(conf_path))
+bookmarks = []
 
 def formatUrl(url):
 	if url.startswith("http://") or url.startswith("https://"):
@@ -75,6 +76,26 @@ class MainWindow(QMainWindow):
 		self.search_bar.setPlaceholderText("Search")
 		self.search_bar.returnPressed.connect(lambda: self.browser.setUrl(QUrl(conf["search_engine"].format(query = self.search_bar.text()))))
 		self.navbar.addWidget(self.search_bar)
+
+		# bookmark rack
+		# where you can store websites for later use in the session
+		self.bookmark_bar = QToolBar()
+		# move it to the bottom
+		self.bookmark_bar.move(0, self.height() - self.bookmark_bar.height())
+		self.addToolBar(self.bookmark_bar)
+
+		# bookmark save button
+		bookmark_save_btn = QAction("📁", self)
+		bookmark_save_btn.triggered.connect(self.bookmarkSaveProcess)
+		self.bookmark_bar.addAction(bookmark_save_btn)
+
+		# bookmark remove button
+		bookmark_remove_btn = QAction("🗑", self)
+		bookmark_remove_btn.triggered.connect(self.bookmarkRemoveProcess)
+		self.bookmark_bar.addAction(bookmark_remove_btn)
+
+		# add separator
+		self.bookmark_bar.addSeparator()
 
 		# load extensions
 		self.extensions = []
@@ -307,6 +328,41 @@ class MainWindow(QMainWindow):
 				# check if the extension has the function blazeOnRemoveFavourite()
 				if hasattr(ext, "blazeOnRemoveFavourite"):
 					ext.blazeOnRemoveFavourite(self, self.browser, name)
+	
+	def bookmarkSaveProcess(self):
+		# get the url from the user
+		url, ok = QInputDialog.getText(self, "Save Bookmark", "URL:")
+		if ok:
+			url = formatUrl(url)
+			# add bookmark to the bar
+			bookmark_action = QAction(url, self)
+			bookmark_action.triggered.connect(lambda: self.browser.setUrl(QUrl(url)))
+			self.bookmark_bar.addAction(bookmark_action)
+			# add bookmark to var
+			bookmarks.append(url)
+	
+	def bookmarkRemoveProcess(self):
+		# if user is on a bookmark, remove it
+		if self.browser.url().toString() in bookmarks:
+			# remove bookmark from bar
+			for action in self.bookmark_bar.actions():
+				if action.text() == self.browser.url().toString():
+					self.bookmark_bar.removeAction(action)
+					break
+			# remove bookmark from var
+			bookmarks.remove(self.browser.url().toString())
+		# else, ask for url
+		else:
+			url, ok = QInputDialog.getText(self, "Remove Bookmark", "URL:")
+			if ok:
+				url = formatUrl(url)
+				# remove bookmark from bar
+				for action in self.bookmark_bar.actions():
+					if action.text() == url:
+						self.bookmark_bar.removeAction(action)
+						break
+				# remove bookmark from var
+				bookmarks.remove(url)
 
 app = QApplication(sys.argv)
 QApplication.setApplicationName("Blazenet")

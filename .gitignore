@@ -154,3 +154,4 @@ cython_debug/
 blazenet.7z
 
 ext/*/package.zip
+ext/DevReload/
