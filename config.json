@@ -1,0 +1,13 @@
+{
+    "homepage": "https://start.duckduckgo.com",
+    "extensions": {
+        "blacklist": []
+    },
+    "search_engine": "https://duckduckgo.com/?q={query}",
+    "favourites": [
+        {
+            "name": "YouTube",
+            "url": "http://youtube.com"
+        }
+    ]
+}
