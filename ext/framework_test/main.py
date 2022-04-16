@@ -1,6 +1,9 @@
 def blazeOnApplicationLoad(app, browser, name):
     print("Extension framework: blazeOnApplicationLoad()")
 
+def blazeOnPageChange(app, browser, url, page):
+    print("Extension framework: blazeOnPageChange() called")
+
 def blazeOnPageLoad(app, browser, url, page):
     print("Extension framework: blazeOnPageLoad() called")
 
@@ -19,10 +22,10 @@ def blazeOnHome(app, browser, url, page):
 def blazeOnQuit(app, browser, url, page):
     print("Extension framework: blazeOnQuit() called")
 
-def blazeOnAddFavourite(app, browser, url, page):
+def blazeOnAddFavourite(app, browser, url, name):
     print("Extension framework: blazeOnAddFavourite() called")
 
-def blazeOnRemoveFavourite(app, browser, url, page):
+def blazeOnRemoveFavourite(app, browser, name):
     print("Extension framework: blazeOnRemoveFavourite() called")
 
 def blazeOnSettingChanged(app):

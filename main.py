@@ -252,7 +252,7 @@ class MainWindow(QMainWindow):
 				for ext in self.extensions:
 					# check if the extension has the function blazeOnAddFavourite()
 					if hasattr(ext, "blazeOnAddFavourite"):
-						ext.blazeOnAddFavourite(self, self.browser, self.browser.url().toString(), self.browser.page())
+						ext.blazeOnAddFavourite(self, self.browser, url, name)
 	
 	def removeFavouriteProcess(self):
 		# get the name and url from the user
@@ -272,7 +272,7 @@ class MainWindow(QMainWindow):
 			for ext in self.extensions:
 				# check if the extension has the function blazeOnRemoveFavourite()
 				if hasattr(ext, "blazeOnRemoveFavourite"):
-					ext.blazeOnRemoveFavourite(self, self.browser, self.browser.url().toString(), self.browser.page())
+					ext.blazeOnRemoveFavourite(self, self.browser, name)
 
 # settings window
 # tab view:
