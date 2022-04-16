@@ -156,7 +156,8 @@ class MainWindow(QMainWindow):
 				self.extensions.append(__import__("ext." + args[0] + ".main", fromlist=["ext"]))
 				self.found_extensions.append(self.extensions[-1])
 				# call blazeOnApplicationLoad()
-				self.extensions[-1].blazeOnApplicationLoad(self, self.browser, args[0])
+				if hasattr(self.extensions[-1], "blazeOnApplicationLoad"):
+					self.extensions[-1].blazeOnApplicationLoad(self, self.browser, args[0])
 				# show info dialog
 				QMessageBox.information(self, "Extension installed", f"Extension {args[0]} installed successfully.")
 			self.browser.back()
