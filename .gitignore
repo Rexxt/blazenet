@@ -152,6 +152,3 @@ cython_debug/
 #.idea/
 
 blazenet.7z
-
-ext/
-!ext/framework_test/
