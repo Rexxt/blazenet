@@ -13,7 +13,10 @@ Light, reliable, extensible and free web browser.
 - Website Hold Rack to store links for later use in the current session
 - Preinstalled adblocking extension
 
-## Extension framework
+## Extension store
+We have a store for you to install various extensions on your browser, visit it (here)[extensions].
+
+## Developing with the extensions framework
 ### Getting started
 Writing an extension for blazenet is very easy.
 
