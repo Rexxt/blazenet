@@ -8,6 +8,7 @@ Light, reliable, extensible and free web browser.
 - Favourites
 - Extension system with 10 events as of version 0.0.1a-0
 - Navigation bar with controls including a home button redirecting to a user-set homepage, URL bar with automatic prefix addition (adds `http://` if prefix is left out) and search bar with customizable search engine
+- Browser commands, allowing for in-browser live extension installation and loading
 ### Previewed
 - Website Hold Rack to store links for later use in the current session
 - Preinstalled adblocking extension
