@@ -79,6 +79,24 @@ class MainWindow(QMainWindow):
 		self.search_bar.returnPressed.connect(lambda: self.browser().setUrl(QUrl(conf["search_engine"].format(query = self.search_bar.text()))))
 		self.navbar.addWidget(self.search_bar)
 
+		# tab switcher
+		self.tab_switcher = QComboBox()
+		self.tab_switcher.currentIndexChanged.connect(self.tabSwitcherProcess)
+		self.navbar.addWidget(self.tab_switcher)
+		# add new tab to the tab switcher
+		self.tab_switcher.addItem("New tab")
+		self.tab_switcher.setCurrentIndex(0)
+
+		# new tab button
+		new_tab_btn = QAction("➕", self)
+		new_tab_btn.triggered.connect(self.newTabProcess)
+		self.navbar.addAction(new_tab_btn)
+
+		# close tab button
+		close_tab_btn = QAction("➖", self)
+		close_tab_btn.triggered.connect(self.closeTabProcess)
+		self.navbar.addAction(close_tab_btn)
+
 		# load extensions
 		self.extensions = []
 		self.found_extensions = []
@@ -141,6 +159,33 @@ class MainWindow(QMainWindow):
 	
 	def browser(self):
 		return self.browsers[self.browser_index]
+
+	def tabSwitcherProcess(self):
+		self.browser_index = self.tab_switcher.currentIndex()
+		# show the correct browser
+		self.takeCentralWidget()
+		self.setCentralWidget(self.browsers[self.browser_index])
+		# set the window title to "Blazenet • " + page title + " • " + url
+		self.setWindowTitle("Blazenet • " + self.browser().page().title() + " • " + self.browser().url().toString())
+		# set the address bar to the url
+		self.address_bar.setText(self.browser().url().toString())
+	
+	def newTabProcess(self):
+		self.browsers.append(QWebEngineView())
+		self.tab_switcher.addItem("New tab")
+		self.tab_switcher.setCurrentIndex(len(self.browsers) - 1)
+		self.tabSwitcherProcess()
+		# homepage
+		try: self.homeProcess()
+		except: pass
+	
+	def closeTabProcess(self):
+		if len(self.browsers) > 1:
+			self.browsers.pop(self.browser_index)
+			self.tab_switcher.removeItem(self.browser_index)
+			if self.browser_index >= len(self.browsers):
+				self.browser_index = len(self.browsers) - 1
+			self.tabSwitcherProcess()
 	
 	def onPageChangedProcess(self):
 		# if the url is special (starting with "http://localhost/BLAZECMD/"), call the function associated with the url
@@ -204,6 +249,9 @@ class MainWindow(QMainWindow):
 		
 		# set the window title to "Blazenet • " + page title + " • " + url
 		self.setWindowTitle("Blazenet • " + self.browser().page().title() + " • " + self.browser().url().toString())
+
+		# set tab text to page title
+		self.tab_switcher.setItemText(self.browser_index, self.browser().page().title())
 
 	def backProcess(self):
 		self.browser().back()
