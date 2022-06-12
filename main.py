@@ -33,10 +33,12 @@ class MainWindow(QMainWindow):
 		self.setWindowTitle("Blazenet")
 		self.setGeometry(100, 100, 800, 600)
 
-		self.browser = QWebEngineView()
+		self.browsers = [QWebEngineView()]
+		self.browser_index = 0
+
 		# Open DuckDuckGo
-		self.browser.setUrl(QUrl(conf["homepage"]))
-		self.setCentralWidget(self.browser)
+		self.browser().setUrl(QUrl(conf["homepage"]))
+		self.setCentralWidget(self.browser())
 
 		# navbar
 		self.navbar = QToolBar()
@@ -68,13 +70,13 @@ class MainWindow(QMainWindow):
 		# address bar
 		self.address_bar = QLineEdit()
 		self.address_bar.setPlaceholderText("Enter URL")
-		self.address_bar.returnPressed.connect(lambda: self.browser.setUrl(QUrl(formatUrl(self.address_bar.text()))))
+		self.address_bar.returnPressed.connect(lambda: self.browser().setUrl(QUrl(formatUrl(self.address_bar.text()))))
 		self.navbar.addWidget(self.address_bar)
 
 		# search bar
 		self.search_bar = QLineEdit()
 		self.search_bar.setPlaceholderText("Search")
-		self.search_bar.returnPressed.connect(lambda: self.browser.setUrl(QUrl(conf["search_engine"].format(query = self.search_bar.text()))))
+		self.search_bar.returnPressed.connect(lambda: self.browser().setUrl(QUrl(conf["search_engine"].format(query = self.search_bar.text()))))
 		self.navbar.addWidget(self.search_bar)
 
 		# load extensions
@@ -94,7 +96,7 @@ class MainWindow(QMainWindow):
 		for ext in self.extensions:
 			# check if the extension has the function blazeOnApplicationLoad()
 			if hasattr(ext, "blazeOnApplicationLoad"):
-				ext.blazeOnApplicationLoad(self, self.browser, ext.__name__.lstrip("ext.").rstrip(".main"))
+				ext.blazeOnApplicationLoad(self, self.browser(), ext.__name__.lstrip("ext.").rstrip(".main"))
 
 		# Blazenet menu
 		# will have options like quit, about, etc.
@@ -127,28 +129,31 @@ class MainWindow(QMainWindow):
 		# favourites
 		for favourite in conf["favourites"]:
 			fav_action = QAction(favourite["name"], self)
-			fav_action.triggered.connect(lambda: self.browser.setUrl(QUrl(favourite["url"])))
+			fav_action.triggered.connect(lambda: self.browser().setUrl(QUrl(favourite["url"])))
 			self.favourites_menu.addAction(fav_action)
 
 		# when the page changes, call onPageChangedProcess()
-		self.browser.urlChanged.connect(self.onPageChangedProcess)
+		self.browser().urlChanged.connect(self.onPageChangedProcess)
 		# when the browser loads a page, call onPageLoadProcess()
-		self.browser.loadFinished.connect(self.onPageLoadProcess)
+		self.browser().loadFinished.connect(self.onPageLoadProcess)
 
 		self.showMaximized()
 	
+	def browser(self):
+		return self.browsers[self.browser_index]
+	
 	def onPageChangedProcess(self):
 		# if the url is special (starting with "http://localhost/BLAZECMD/"), call the function associated with the url
-		if self.browser.url().toString().startswith("http://localhost/BLAZECMD/"):
-			print("Executing command: " + self.browser.url().toString().replace("http://localhost/BLAZECMD/", ""))
+		if self.browser().url().toString().startswith("http://localhost/BLAZECMD/"):
+			print("Executing command: " + self.browser().url().toString().replace("http://localhost/BLAZECMD/", ""))
 			# get the function name
-			func_name = self.browser.url().toString().lstrip("http://localhost/BLAZECMD/").split("/")[0]
-			args = self.browser.url().toString().lstrip("http://localhost/BLAZECMD/").split("/")[1:]
+			func_name = self.browser().url().toString().lstrip("http://localhost/BLAZECMD/").split("/")[0]
+			args = self.browser().url().toString().lstrip("http://localhost/BLAZECMD/").split("/")[1:]
 			# if name = "install-extension", install the extension
 			if func_name == "install-extension":
 				if conf["blaze_commands"]["install-extension"]:
 					print("Installing extension: " + args[0])
-					self.browser.load(QUrl("https://rexxt.github.io/blazenet/ext/installing"))
+					self.browser().load(QUrl("https://rexxt.github.io/blazenet/ext/installing"))
 					# edit window title
 					self.setWindowTitle("Blazenet • Installing extension " + args[0] + "...")
 					# make url
@@ -163,74 +168,74 @@ class MainWindow(QMainWindow):
 					self.found_extensions.append(self.extensions[-1])
 					# call blazeOnApplicationLoad()
 					if hasattr(self.extensions[-1], "blazeOnApplicationLoad"):
-						self.extensions[-1].blazeOnApplicationLoad(self, self.browser, args[0])
+						self.extensions[-1].blazeOnApplicationLoad(self, self.browser(), args[0])
 					# show info dialog
 					QMessageBox.information(self, "Extension installed", f"Extension {args[0]} installed successfully.")
-					self.browser.back()
+					self.browser().back()
 				else:
-					self.browser.back()
+					self.browser().back()
 					QMessageBox.warning(self, "Extension not installed", "Live extension installation is disabled in the settings.")
-			self.browser.back()
+			self.browser().back()
 
 		# for each extension, call blazeOnPageChanged(app, browser, url, page)
 		for ext in self.extensions:
 			# check if the extension has the function blazeOnPageChanged()
 			if hasattr(ext, "blazeOnPageChanged"):
-				ext.blazeOnPageChanged(self, self.browser, self.browser.url().toString(), self.browser.page())
+				ext.blazeOnPageChanged(self, self.browser(), self.browser().url().toString(), self.browser().page())
 
 		# set the window title to "Blazenet • " + page title + " • " + url
-		self.setWindowTitle("Blazenet • " + self.browser.page().title() + " • " + self.browser.url().toString())
+		self.setWindowTitle("Blazenet • " + self.browser().page().title() + " • " + self.browser().url().toString())
 
 		# set the reload button text to ✖
 		self.reload_btn.setText("✖")
 
 		# set the address bar to the url
-		self.address_bar.setText(self.browser.url().toString())
+		self.address_bar.setText(self.browser().url().toString())
 
 	def onPageLoadProcess(self):
 		# for each extension, call blazeOnPageLoad(app, browser, url, page)
 		for ext in self.extensions:
 			# check if the extension has the function blazeOnPageLoad()
 			if hasattr(ext, "blazeOnPageLoad"):
-				ext.blazeOnPageLoad(self, self.browser, self.browser.url().toString(), self.browser.page())
+				ext.blazeOnPageLoad(self, self.browser(), self.browser().url().toString(), self.browser().page())
 
 		# set the reload button text to ⭮
 		self.reload_btn.setText("⭮")
 		
 		# set the window title to "Blazenet • " + page title + " • " + url
-		self.setWindowTitle("Blazenet • " + self.browser.page().title() + " • " + self.browser.url().toString())
+		self.setWindowTitle("Blazenet • " + self.browser().page().title() + " • " + self.browser().url().toString())
 
 	def backProcess(self):
-		self.browser.back()
+		self.browser().back()
 		# for each extension, call blazeOnBack(app, browser, url, page)
 		for ext in self.extensions:
 			# check if the extension has the function blazeOnBack()
 			if hasattr(ext, "blazeOnBack"):
-				ext.blazeOnBack(self, self.browser, self.browser.url().toString(), self.browser.page())
+				ext.blazeOnBack(self, self.browser(), self.browser().url().toString(), self.browser().page())
 	
 	def forwardProcess(self):
-		self.browser.forward()
+		self.browser().forward()
 		# for each extension, call blazeOnForward(app, browser, url, page)
 		for ext in self.extensions:
 			# check if the extension has the function blazeOnForward()
 			if hasattr(ext, "blazeOnForward"):
-				ext.blazeOnForward(self, self.browser, self.browser.url().toString(), self.browser.page())
+				ext.blazeOnForward(self, self.browser(), self.browser().url().toString(), self.browser().page())
 	
 	def reloadProcess(self):
-		self.browser.reload()
+		self.browser().reload()
 		# for each extension, call blazeOnReload(app, browser, url, page)
 		for ext in self.extensions:
 			# check if the extension has the function blazeOnReload()
 			if hasattr(ext, "blazeOnReload"):
-				ext.blazeOnReload(self, self.browser, self.browser.url().toString(), self.browser.page())
+				ext.blazeOnReload(self, self.browser(), self.browser().url().toString(), self.browser().page())
 	
 	def homeProcess(self):
-		self.browser.setUrl(QUrl(conf["homepage"]))
+		self.browser().setUrl(QUrl(conf["homepage"]))
 		# for each extension, call blazeOnHome(app, browser, url, page)
 		for ext in self.extensions:
 			# check if the extension has the function blazeOnHome()
 			if hasattr(ext, "blazeOnHome"):
-				ext.blazeOnHome(self, self.browser, self.browser.url().toString(), self.browser.page())
+				ext.blazeOnHome(self, self.browser(), self.browser().url().toString(), self.browser().page())
 	
 	def aboutProcess(self):
 		# display the about dialog
@@ -248,7 +253,7 @@ class MainWindow(QMainWindow):
 		for ext in self.extensions:
 			# check if the extension has the function blazeOnQuit()
 			if hasattr(ext, "blazeOnQuit"):
-				ext.blazeOnQuit(self, self.browser, self.browser.url().toString(), self.browser.page())
+				ext.blazeOnQuit(self, self.browser(), self.browser().url().toString(), self.browser().page())
 		self.close()
 
 	def reloadFavourites(self):
@@ -267,7 +272,7 @@ class MainWindow(QMainWindow):
 		# favourites
 		for favourite in conf["favourites"]:
 			fav_action = QAction(favourite["name"], self)
-			fav_action.triggered.connect(lambda: self.browser.setUrl(QUrl(favourite["url"])))
+			fav_action.triggered.connect(lambda: self.browser().setUrl(QUrl(favourite["url"])))
 			self.favourites_menu.addAction(fav_action)
 
 	def addFavouriteProcess(self):
@@ -287,7 +292,7 @@ class MainWindow(QMainWindow):
 				for ext in self.extensions:
 					# check if the extension has the function blazeOnAddFavourite()
 					if hasattr(ext, "blazeOnAddFavourite"):
-						ext.blazeOnAddFavourite(self, self.browser, url, name)
+						ext.blazeOnAddFavourite(self, self.browser(), url, name)
 	
 	def removeFavouriteProcess(self):
 		# get the name and url from the user
@@ -307,7 +312,7 @@ class MainWindow(QMainWindow):
 			for ext in self.extensions:
 				# check if the extension has the function blazeOnRemoveFavourite()
 				if hasattr(ext, "blazeOnRemoveFavourite"):
-					ext.blazeOnRemoveFavourite(self, self.browser, name)
+					ext.blazeOnRemoveFavourite(self, self.browser(), name)
 
 app = QApplication(sys.argv)
 QApplication.setApplicationName("Blazenet")
