@@ -83,6 +83,7 @@ class MainWindow(QMainWindow):
 		self.tab_switcher = QComboBox()
 		self.tab_switcher.currentIndexChanged.connect(self.tabSwitcherProcess)
 		self.navbar.addWidget(self.tab_switcher)
+		self.tab_switcher.setFixedWidth(250)
 		# add new tab to the tab switcher
 		self.tab_switcher.addItem("New tab")
 		self.tab_switcher.setCurrentIndex(0)
@@ -175,6 +176,10 @@ class MainWindow(QMainWindow):
 		self.tab_switcher.addItem("New tab")
 		self.tab_switcher.setCurrentIndex(len(self.browsers) - 1)
 		self.tabSwitcherProcess()
+		# when the page changes, call onPageChangedProcess()
+		self.browser().urlChanged.connect(self.onPageChangedProcess)
+		# when the browser loads a page, call onPageLoadProcess()
+		self.browser().loadFinished.connect(self.onPageLoadProcess)
 		# homepage
 		try: self.homeProcess()
 		except: pass
@@ -237,6 +242,9 @@ class MainWindow(QMainWindow):
 		# set the address bar to the url
 		self.address_bar.setText(self.browser().url().toString())
 
+		# set tab text to page title
+		self.tab_switcher.setItemText(self.browser_index, self.browser().page().title())
+
 	def onPageLoadProcess(self):
 		# for each extension, call blazeOnPageLoad(app, browser, url, page)
 		for ext in self.extensions:
@@ -260,6 +268,7 @@ class MainWindow(QMainWindow):
 			# check if the extension has the function blazeOnBack()
 			if hasattr(ext, "blazeOnBack"):
 				ext.blazeOnBack(self, self.browser(), self.browser().url().toString(), self.browser().page())
+		
 	
 	def forwardProcess(self):
 		self.browser().forward()

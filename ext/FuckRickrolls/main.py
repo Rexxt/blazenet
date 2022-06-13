@@ -6,7 +6,7 @@ rickrolls_this_session = 0
 
 def blazeOnPageLoad(app, browser, url, page):
     global rickrolls_this_session
-    if url.startswith("https://www.youtube.com/watch?v=dQw4w9WgXcQ"):
+    if url.startswith("https://www.youtube.com/watch?v=dQw4w9WgXcQ") or url.startswith("https://www.youtube.com/watch?v=p7YXXieghto") or url.startswith("https://vimeo.com/582749541"):
         # the user is being rickrolled
         rickrolls_this_session += 1
         print('Saved {} rickrolls this session'.format(rickrolls_this_session))

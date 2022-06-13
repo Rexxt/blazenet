@@ -86,7 +86,6 @@ class SettingsWindow(QDialog):
 		# fill the list view with the extensions
 		for ext in self.extensions:
 			ext_name = ext.__name__.split(".")[1]
-			print(ext_name, ext_name)
 			ext_item = QListWidgetItem(ext_name)
 			ext_item.setCheckState(Qt.Unchecked if ext_name in conf["extensions"]["blacklist"] else Qt.Checked)
 			ext_item._name = ext_name
